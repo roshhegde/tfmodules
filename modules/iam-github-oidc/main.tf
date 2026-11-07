@@ -43,5 +43,6 @@ module "role" {
   name                = var.role_name
   assume_role_policy  = data.aws_iam_policy_document.trust.json
   managed_policy_arns = var.policy_arns
+  inline_policy_json  = var.inline_policy_json
   tags                = var.tags
 }

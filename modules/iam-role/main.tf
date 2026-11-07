@@ -12,3 +12,10 @@ resource "aws_iam_role_policy_attachment" "this" {
   role       = aws_iam_role.this.name
   policy_arn = each.value
 }
+
+resource "aws_iam_role_policy" "inline" {
+  count  = var.inline_policy_json == null ? 0 : 1
+  name   = "${var.name}-inline"
+  role   = aws_iam_role.this.id
+  policy = var.inline_policy_json
+}
