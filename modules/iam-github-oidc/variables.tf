@@ -61,3 +61,10 @@ variable "inline_policy_json" {
   default     = null
   nullable    = true
 }
+
+variable "subject" {
+  description = "Exact token subject to trust, for example repo:owner@ownerId/repo@repoId:ref:refs/heads/main. Overrides github_repository and github_ref when set. Use it for GitHub's immutable subject format."
+  type        = string
+  default     = null
+  nullable    = true
+}

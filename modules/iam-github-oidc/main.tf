@@ -32,7 +32,7 @@ data "aws_iam_policy_document" "trust" {
     condition {
       test     = "StringLike"
       variable = "${local.oidc_host}:sub"
-      values   = ["repo:${var.github_repository}:ref:${var.github_ref}"]
+      values   = [coalesce(var.subject, "repo:${var.github_repository}:ref:${var.github_ref}")]
     }
   }
 }
