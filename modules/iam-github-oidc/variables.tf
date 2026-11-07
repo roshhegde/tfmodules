@@ -54,3 +54,10 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "inline_policy_json" {
+  description = "Optional JSON policy document embedded in the deploy role. Use it for narrow permissions such as eks:DescribeCluster on one cluster."
+  type        = string
+  default     = null
+  nullable    = true
+}

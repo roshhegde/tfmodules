@@ -19,3 +19,10 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "inline_policy_json" {
+  description = "Optional JSON policy document embedded in the role, for permissions no managed policy covers."
+  type        = string
+  default     = null
+  nullable    = true
+}

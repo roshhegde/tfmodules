@@ -9,6 +9,15 @@ variable "destination_cidr_block" {
 }
 
 variable "gateway_id" {
-  description = "ID of the gateway used as the route target."
+  description = "ID of an internet gateway used as the route target. Set this or nat_gateway_id, not both."
   type        = string
+  default     = null
+  nullable    = true
+}
+
+variable "nat_gateway_id" {
+  description = "ID of a NAT gateway used as the route target. Set this or gateway_id, not both."
+  type        = string
+  default     = null
+  nullable    = true
 }
