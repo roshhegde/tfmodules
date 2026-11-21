@@ -1,3 +1,14 @@
+# A Lambda function and its log group (/aws/lambda/<function_name>).
+
+resource "aws_cloudwatch_log_group" "this" {
+  name              = "/aws/lambda/${var.function_name}"
+  retention_in_days = var.log_retention_days
+
+  tags = merge(var.tags, {
+    ManagedBy = "Terraform"
+  })
+}
+
 resource "aws_lambda_function" "this" {
   function_name    = var.function_name
   role             = var.role_arn
@@ -24,4 +35,6 @@ resource "aws_lambda_function" "this" {
     Name      = var.function_name
     ManagedBy = "Terraform"
   })
+
+  depends_on = [aws_cloudwatch_log_group.this]
 }
