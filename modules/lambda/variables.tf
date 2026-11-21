@@ -59,6 +59,12 @@ variable "tracing_mode" {
   default     = "Active"
 }
 
+variable "log_retention_days" {
+  description = "Days to keep the function's logs."
+  type        = number
+  default     = 14
+}
+
 variable "tags" {
   description = "Additional tags to apply to the resource."
   type        = map(string)

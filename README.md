@@ -9,36 +9,36 @@ stack.
 
 ## Serverless modules
 
-These follow the same one-resource-type-per-module rule:
+Each serverless module covers one AWS service, with the pieces that only make sense together kept inside it:
 
 | Module | Creates |
 |---|---|
+| `modules/apigateway` | HTTP API, optional JWT authorizer, Lambda proxy integration, routes (from a `routes` map), `$default` stage with throttling and access logs, and the Lambda invoke permission |
+| `modules/cognito` | User pool with email sign-in and its app client; outputs `issuer_url` for `apigateway` |
+| `modules/lambda` | Lambda function from a zip you build (pass `filename` and `source_code_hash`) and its log group |
 | `modules/dynamodb-table` | DynamoDB table (on-demand, encrypted, PITR on by default) |
-| `modules/lambda-function` | Lambda function from a zip you build (pass `filename` and `source_code_hash`) |
-| `modules/lambda-permission` | Permission for a service such as API Gateway to invoke a function |
-| `modules/cognito-user-pool` | Cognito user pool with email sign-in; outputs `issuer_url` for JWT authorizers |
-| `modules/cognito-user-pool-client` | App client for a user pool |
-| `modules/apigatewayv2-api` | HTTP API with optional CORS |
-| `modules/apigatewayv2-authorizer` | JWT authorizer |
-| `modules/apigatewayv2-integration` | Lambda proxy integration |
-| `modules/apigatewayv2-route` | One route; pass `authorizer_id` to protect it, or leave it null for a public route |
-| `modules/apigatewayv2-stage` | Auto-deploying stage with throttling and optional access logs |
-| `modules/cloudwatch-log-group` | Log group with retention |
-| `modules/cloudwatch-metric-alarm` | Metric alarm |
-| `modules/s3-bucket` | Private, encrypted, versioned bucket (its versioning, encryption and public access block settings are part of the module) |
+| `modules/cloudwatch` | Any number of log groups and metric alarms, passed as maps |
+| `modules/s3-bucket` | Private, encrypted, versioned bucket |
 | `modules/budget` | Monthly cost budget with email alerts |
 
 `modules/iam-github-oidc` also accepts `subjects`, a list of token subjects, so one deploy role can trust the main branch, pull requests and a deployment environment together.
 
-Reference modules from another repository with a pinned tag:
+Example API with one public and one protected route:
 
 ```hcl
-module "table" {
-  source = "git::https://github.com/roshhegde/tfmodules.git//modules/dynamodb-table?ref=v1.0.0"
+module "api" {
+  source = "git::https://github.com/roshhegde/tfmodules.git//modules/apigateway?ref=v1.0.0"
 
-  name      = "my-table"
-  hash_key  = "pk"
-  range_key = "sk"
+  name                 = "my-api"
+  lambda_function_name = module.fn.function_name
+  lambda_invoke_arn    = module.fn.invoke_arn
+  jwt_issuer           = module.auth.issuer_url
+  jwt_audience         = [module.auth.client_id]
+
+  routes = {
+    "GET /health" = { authorized = false }
+    "GET /items"  = { authorized = true }
+  }
 }
 ```
 
