@@ -68,3 +68,9 @@ variable "subject" {
   default     = null
   nullable    = true
 }
+
+variable "subjects" {
+  description = "Several token subjects to trust, for example the main branch, pull requests and a deployment environment: [\"repo:owner/repo:ref:refs/heads/main\", \"repo:owner/repo:pull_request\", \"repo:owner/repo:environment:production\"]. Overrides subject, github_repository and github_ref when not empty."
+  type        = list(string)
+  default     = []
+}
