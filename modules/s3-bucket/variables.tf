@@ -20,3 +20,15 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "attach_policy" {
+  description = "Attach policy_json as the bucket policy. A separate flag because the policy is often unknown until apply (for example it names a CloudFront distribution)."
+  type        = bool
+  default     = false
+}
+
+variable "policy_json" {
+  description = "Bucket policy document as JSON, used when attach_policy is true. Public policies stay blocked by the public access block."
+  type        = string
+  default     = null
+}

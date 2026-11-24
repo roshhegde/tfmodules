@@ -1,0 +1,26 @@
+name: test
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.8
+      - name: Format
+        run: terraform fmt -recursive -check
+      - name: Init
+        run: terraform init -input=false -upgrade
+      - name: Validate
+        run: terraform validate
+      - name: Test (mocked AWS provider, no credentials needed)
+        run: terraform test
