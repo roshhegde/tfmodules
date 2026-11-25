@@ -35,3 +35,13 @@ resource "aws_s3_bucket_public_access_block" "this" {
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
+
+# Optional bucket policy, for example the read grant from the cloudfront module.
+resource "aws_s3_bucket_policy" "this" {
+  count  = var.attach_policy ? 1 : 0
+  bucket = aws_s3_bucket.this.id
+  policy = var.policy_json
+
+  # The public access block must exist first, or S3 may evaluate the policy without it.
+  depends_on = [aws_s3_bucket_public_access_block.this]
+}

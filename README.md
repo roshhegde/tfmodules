@@ -42,6 +42,43 @@ module "table" {
 }
 ```
 
+## Modules for Shoplane phase 2 (EKS, RDS, CloudFront)
+
+These follow the one-module-per-AWS-service rule: each one owns the pieces that
+only exist for that service.
+
+| Module | Creates |
+|---|---|
+| `modules/vpc` | The VPC, and when you pass `azs` plus subnet CIDRs: public and private subnets per AZ, internet gateway, NAT gateways (`nat_gateway_mode` = `none`, `single` or `per_az`) and route tables. With only `name` and `vpc_cidr` it still creates just the VPC, so existing callers are unchanged. |
+| `modules/eks` | EKS cluster and its IAM role, managed node groups (Spot and Graviton supported), EKS add-ons, Pod Identity roles and associations, and access entries. Supersedes `eks-cluster` and `eks-node-group`, which stay for existing callers. |
+| `modules/rds` | RDS instance with a generated master password kept in Secrets Manager, its subnet group, parameter group and security group. |
+| `modules/cloudfront` | CloudFront distribution with Origin Access Control for a private S3 bucket, optional uncached custom origins (such as an ALB for `/api/*`), and the bucket policy JSON to hand to `s3-bucket`. |
+| `modules/s3-bucket` | Now also takes `attach_policy` and `policy_json`, and outputs `bucket_regional_domain_name`. |
+
+```hcl
+module "network" {
+  source = "git::https://github.com/roshhegde/tfmodules.git//modules/vpc?ref=v1.1.0"
+
+  name                 = "shoplane"
+  vpc_cidr             = "10.40.0.0/16"
+  azs                  = ["us-east-1a", "us-east-1b"]
+  public_subnet_cidrs  = ["10.40.0.0/24", "10.40.1.0/24"]
+  private_subnet_cidrs = ["10.40.10.0/24", "10.40.11.0/24"]
+  nat_gateway_mode     = "single"
+}
+```
+
+### Tests
+
+`tests/modules.tftest.hcl` plans and "applies" small fixtures against a mocked
+AWS provider, so it needs no credentials and costs nothing:
+
+```sh
+terraform init && terraform test
+```
+
+GitHub Actions runs format, validate and these tests on every pull request.
+
 ## Requirements
 
 - Terraform 1.5 or later.
